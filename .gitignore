@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# Node
+node_modules/
+dist/
+frontend/dist/
+
+# Secrets, local data, runtime state (never commit)
+.env
+.env.*
+!.env.example
+backend/data/
+data/
+*.db
+*.db-wal
+*.db-shm
+*.sqlite3
+.tunnel/
+*.log
+cv_versions/
+cv_optimizer/output/
+
+# Editors / OS
+.idea/
+.vscode/
+.cursor/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Local agent state
+.claude/settings.local.json

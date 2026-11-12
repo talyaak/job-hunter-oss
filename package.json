@@ -1,0 +1,20 @@
+{
+  "name": "job-hunter",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Self-hosted job sweep with Gemini scoring, LinkedIn sourcing and a private tunnel",
+  "license": "MIT",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "setup": "node scripts/setup.mjs",
+    "dev": "node scripts/dev.mjs",
+    "dev:tunnel": "node scripts/dev.mjs --tunnel",
+    "tunnel": "node scripts/tunnel.mjs",
+    "doctor": "node scripts/py.mjs -m app.doctor_cli",
+    "doctor:full": "node scripts/py.mjs -m app.doctor_cli --probe --sweep",
+    "test": "node scripts/py.mjs -m pytest -q",
+    "test:ntfy": "node scripts/notify.mjs \"Job Hunter\" \"Test notification\"",
+    "build": "npm --prefix frontend run build",
+    "kill-ports": "node scripts/kill-ports.mjs"
+  }
+}

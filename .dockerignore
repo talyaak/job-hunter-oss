@@ -1,0 +1,9 @@
+.git
+.env
+.tunnel
+**/node_modules
+**/.venv
+**/__pycache__
+backend/data
+frontend/dist
+cv_optimizer/output

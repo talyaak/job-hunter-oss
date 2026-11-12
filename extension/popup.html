@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      body { font: 13px system-ui, sans-serif; margin: 12px; min-width: 260px; }
+      label { display: block; font-size: 11px; color: #666; margin-bottom: 4px; }
+      input { width: 100%; box-sizing: border-box; margin-bottom: 10px; padding: 6px; }
+      p { font-size: 11px; color: #888; margin: 0 0 10px; }
+      #status { color: #0a7; }
+    </style>
+  </head>
+  <body>
+    <label>Job Hunter API URL</label>
+    <input id="apiBase" placeholder="http://localhost:8000" />
+    <label>Access token (only needed for a non-local URL)</label>
+    <input id="token" type="password" autocomplete="off" placeholder="ACCESS_TOKEN from your .env" />
+    <p>Stored on this device only. For a tunnel URL, grant access to it when asked.</p>
+    <p id="status"></p>
+    <script src="popup.js"></script>
+  </body>
+</html>

@@ -1,0 +1,35 @@
+# Optional: run the app in containers instead of `npm run dev`.
+#   cp .env.example .env   (or run `npm run setup` once), then:  docker compose up --build
+# Ports are published on this machine's loopback only. Inside Docker, requests do not come from loopback,
+# so the access token is always required: open  http://localhost:5173/?t=<ACCESS_TOKEN from .env>
+# (to expose it, run the tunnel on the host: `npm run tunnel`).
+services:
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    env_file: .env
+    environment:
+      DATABASE_URL: sqlite:////app/backend/data/job_hunter.db
+      API_HOST: 0.0.0.0
+    volumes:
+      - ./backend/data:/app/backend/data
+      - ./.env:/app/.env
+    ports:
+      - "127.0.0.1:8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health/live')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+  web:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    environment:
+      API_PROXY_TARGET: http://api:8000
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:5173:5173"
