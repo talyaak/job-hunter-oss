@@ -65,6 +65,9 @@ See [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md#docker-optional).
 | `npm test` | backend tests |
 | `npm run test:ntfy` | send a test push |
 
+**New here?** [Getting started](docs/GETTING_STARTED.md) walks you through it, and if you use an LLM coding assistant,
+hand it [AGENTS.md](AGENTS.md): it contains the rules, the fast path and how to tailor the app to you.
+
 ## Skills (for Claude Code and compatible agents)
 
 | Skill | Use it to |
@@ -83,7 +86,7 @@ in its popup.
 
 ## Documentation
 
-[Architecture](docs/ARCHITECTURE.md) · [Configuration](docs/CONFIGURATION.md) · [Tunnel & security](docs/TUNNEL.md) ·
+[Getting started](docs/GETTING_STARTED.md) · [For assistants](AGENTS.md) · [Architecture](docs/ARCHITECTURE.md) · [Configuration](docs/CONFIGURATION.md) · [Tunnel & security](docs/TUNNEL.md) ·
 [LinkedIn](docs/LINKEDIN.md) · [Privacy](docs/PRIVACY.md) · [CV optimizer](docs/CV_OPTIMIZER.md) ·
 [Troubleshooting](docs/TROUBLESHOOTING.md) · [Security policy](SECURITY.md) · [Contributing](CONTRIBUTING.md)
 
