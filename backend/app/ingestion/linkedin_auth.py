@@ -99,12 +99,35 @@ def _read_json_string_at(html: str, start: int) -> tuple[str | None, int]:
     return None, i
 
 
+_TESTID_BOX = re.compile(r'<span\b[^>]*data-testid="expandable-text-box"[^>]*>', re.I)
+_SPAN_TOKEN = re.compile(r"<(/?)span\b[^>]*>", re.I)
+
+
+def _extract_testid_box(html: str) -> str | None:
+    """Current logged-in job pages render the description inside a span marked
+    ``data-testid="expandable-text-box"`` (class names are hashed, the test id is stable)."""
+    m = _TESTID_BOX.search(html)
+    if not m:
+        return None
+    depth = 1
+    for tok in _SPAN_TOKEN.finditer(html, m.end()):
+        depth += -1 if tok.group(1) else 1
+        if depth == 0:
+            text = _strip_html(html[m.end() : tok.start()])
+            return text if len(text) > 20 else None
+    return None
+
+
 def extract_linkedin_description(html: str) -> str | None:
     m = re.search(r'"description"\s*:\s*\{\s*"text"\s*:\s*"', html)
     if m:
         text, _ = _read_json_string_at(html, m.end() - 1)
         if text and len(text.strip()) > 20:
             return text.strip()
+
+    boxed = _extract_testid_box(html)
+    if boxed:
+        return boxed
 
     m = re.search(
         r'class="[^"]*show-more-less-html__markup[^"]*"[^>]*>(.*?)</div>',

@@ -28,3 +28,10 @@ and the check fails with a hint; repeat the steps. Treat the cookie like a passw
 Search terms and location come from your preferences. `JOBSPY_HOURS_OLD`, `INGESTION_POOL_SIZE`,
 `INGESTION_POOL_COUNT` and `INGESTION_POOL_DRYOFF_SECONDS` control volume. The Dashboard has an ad-hoc LinkedIn search
 tab with history, "posted X hours ago" labels and one-click save/score.
+
+## Maintenance note
+
+LinkedIn changes its page markup without notice. The description extractor (`backend/app/ingestion/linkedin_auth.py`)
+tries, in order: embedded JSON, the logged-in `data-testid="expandable-text-box"` block, and the guest
+`show-more-less-html__markup` block. If descriptions stop arriving, run `npm run doctor -- --probe` (checks the
+cookie) and open an issue with the page structure (never share your cookie).
