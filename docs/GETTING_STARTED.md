@@ -5,6 +5,11 @@ LLM coding assistant (Claude Code, Cursor, ...) and say "onboard me": it will re
 `onboard` skill and guide you.
 
 ## 1. Prerequisites
+**On Windows?** Read [WINDOWS.md](WINDOWS.md) first: what to install, and why you might (or might not) want WSL or Docker.
+
+Want to understand what you are running? [HOW_IT_WORKS.md](HOW_IT_WORKS.md) is a 10-minute primer; onboarding can also show
+short notes at each step (`npm run setup -- --learn`).
+
 - Node 18+ and Python 3.11+ (`node -v`, `python --version`)
 - A free Gemini API key: https://aistudio.google.com/apikey
 - Your CV as a **text-based PDF** (not a scan)

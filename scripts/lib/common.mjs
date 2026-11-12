@@ -48,6 +48,29 @@ export function findPython() {
   throw new Error("Python 3.11+ not found. Install it, then run `npm run setup`.");
 }
 
+/**
+ * Find a Python >= 3.11 to create the virtualenv with. On Windows the usual traps are the Microsoft Store
+ * "python" alias (a stub that exits non-zero) and a machine that only has the `py` launcher.
+ */
+export function findBasePython() {
+  const candidates = isWindows ? [["python"], ["py", "-3"], ["python3"]] : [["python3"], ["python"]];
+  const found = [];
+  for (const [cmd, ...pre] of candidates) {
+    const r = spawnSync(cmd, [...pre, "-c", "import sys; print(sys.version_info[0]*100+sys.version_info[1])"], {
+      encoding: "utf8", // no shell: python/py are real executables, and a shell would mangle the quoted -c script
+    });
+    if (r.status !== 0) continue;
+    const version = Number((r.stdout || "").trim());
+    if (version >= 311) return { cmd, pre };
+    found.push(`${cmd} (${Math.floor(version / 100)}.${version % 100})`);
+  }
+  const hint = isWindows
+    ? "Install it with:  winget install Python.Python.3.12   (then open a NEW terminal). If `python` opens the Microsoft Store, " +
+      "turn off Settings > Apps > Advanced app settings > App execution aliases > python.exe."
+    : "Install Python 3.11+ (e.g. your package manager's python3 and python3-venv).";
+  throw new Error(`Python 3.11+ not found${found.length ? ` (found only ${found.join(", ")})` : ""}. ${hint}`);
+}
+
 export function run(cmd, args, opts = {}) {
   return spawn(cmd, args, { stdio: "inherit", shell: isWindows && !path.isAbsolute(cmd), ...opts });
 }

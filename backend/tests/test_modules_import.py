@@ -80,3 +80,46 @@ def test_onboard_cli_runs_non_interactively(monkeypatch, tmp_path, capsys):
         db.query(UserPreferences).delete()
         db.commit()
     assert "access token ready" in capsys.readouterr().out.lower()
+
+
+def test_onboard_learning_notes_are_opt_in(monkeypatch, capsys):
+    from app import onboard
+
+    monkeypatch.setattr(onboard, "ask_yes", lambda *a, **k: False)  # learner says no
+    onboard.LEARN_MODE = False
+    onboard.explain("gemini")
+    assert "how it works" not in capsys.readouterr().out
+
+    onboard.LEARN_MODE = True
+    onboard.explain("gemini")
+    out = capsys.readouterr().out
+    assert "[how it works]" in out and "Gemini" in out
+    onboard.LEARN_MODE = False
+
+
+def test_onboard_main_asks_about_learning_and_respects_flags(monkeypatch):
+    from app import onboard
+
+    asked = []
+    monkeypatch.setattr(onboard, "ask_yes", lambda prompt, default=True, assume_yes=False: asked.append(prompt) or False)
+    for step in ("step_env", "step_gemini", "step_cv", "step_preferences", "step_linkedin", "step_ntfy"):
+        monkeypatch.setattr(onboard, step, lambda *a, **k: None)
+    monkeypatch.setattr(onboard, "Base", type("B", (), {"metadata": type("M", (), {"create_all": staticmethod(lambda **k: None)})}))
+
+    onboard.main(["--skip-doctor"])
+    assert any("how it works" in q for q in asked) and onboard.LEARN_MODE is False  # asked, learner declined
+
+    asked.clear()
+    onboard.main(["--skip-doctor", "--learn"])
+    assert not asked and onboard.LEARN_MODE is True  # flag: no question
+
+    onboard.main(["--skip-doctor", "--yes"])
+    assert onboard.LEARN_MODE is False  # non-interactive never teaches
+    onboard.LEARN_MODE = False
+
+
+def test_every_learning_note_has_a_matching_doc_topic():
+    from app.onboard import LEARN
+
+    assert set(LEARN) == {"env", "gemini", "cv", "preferences", "linkedin", "ntfy", "doctor"}
+    assert all(len(v) < 420 for v in LEARN.values()), "notes must stay short"

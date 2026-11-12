@@ -8,6 +8,36 @@ description: Guide a new user through first-run setup of Job Hunter (dependencie
 Goal: a working, private Job Hunter in a few minutes, with the user understanding each setting. Be conversational but
 do the work: run the commands, read results, fix problems.
 
+## Ask first: do they want to learn how it works?
+Before doing anything, ask once, plainly: **"Do you want short explanations of how this system works as we set it up
+(about 2-3 sentences per step), or should I just set it up?"** Respect the answer for the whole session; they can switch
+later ("explain that" / "skip the explanations").
+- **Yes:** before each step below, give the matching 2-3 sentence note (they are the same ones the CLI prints with
+  `--learn`; the longer version is [docs/HOW_IT_WORKS.md](../../../docs/HOW_IT_WORKS.md), section in brackets). Then do the
+  step, then ask one optional "Try it" question from that section. Keep it brief and tied to *their* data.
+  Run the CLI with `npm run setup -- --learn`.
+- **No:** run `npm run setup -- --no-learn` and keep chat to what is needed.
+Never lecture unasked, never block progress on a quiz, and offer the long guide only once at the end.
+
+| Step | Teach (if they said yes) |
+|---|---|
+| Install / `.env` | secrets vs. preferences; why there is an access token [sections 4, 8] |
+| Gemini key | what the model sees and rates; the score is computed by code, not the AI [3] |
+| CV | the CV is the yardstick; embeddings in one sentence [5] |
+| Preferences | cheap filters before the AI, threshold, Rejected is for tuning [2, 6] |
+| LinkedIn | guest vs. cookie, caps, terms risk [7] |
+| ntfy / tunnel | topic is like a password; token gate [8] |
+| First sweep | read Leads vs. Rejected together [1] |
+
+## Windows first
+Most users are on Windows. Check what they have and point to [docs/WINDOWS.md](../../../docs/WINDOWS.md):
+native needs Node 18+, Python 3.11+, Git (one command each: `winget install OpenJS.NodeJS.LTS`, `winget install Python.Python.3.12`,
+`winget install Git.Git`), optional
+`cloudflared`. Explain *why* only when relevant: **WSL** (a real Linux VM inside Windows) is optional and helps on
+managed laptops that block compiled Python packages or if they like Linux tooling; **Docker** is optional and gives an
+isolated, reproducible install but needs Docker Desktop (WSL2 backend) and always requires the access token. Recommend
+native unless they hit a policy block or prefer isolation.
+
 ## Rules
 - **Never print or echo secret values** (Gemini key, `li_at` cookie, `ACCESS_TOKEN`, ntfy topic). Show them masked
   (`****1234`). Do not put secrets in commit messages, logs or chat summaries.
@@ -19,7 +49,8 @@ do the work: run the commands, read results, fix problems.
 
 ## Steps
 
-1. **Prerequisites**: check `node -v` (>= 18) and `python --version` (>= 3.11). If missing, explain how to install and stop.
+1. **Prerequisites**: check `node -v` (>= 18) and `python --version` (>= 3.11). If missing, give the winget commands (Windows)
+   or package-manager hint and stop. If `python` opens the Microsoft Store, see the Windows traps in `docs/WINDOWS.md`.
 2. **Install and migrate**: `npm run setup` does the virtualenv, `pip install -e backend`, `npm install`, `alembic upgrade
    head`, then the interactive questions. For a non-interactive run pass flags, e.g.
    `npm run setup -- --yes --gemini-key <key> --cv <path.pdf> --titles "Backend Engineer, SRE" --location "Berlin"`.

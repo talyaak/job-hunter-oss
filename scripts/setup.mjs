@@ -3,7 +3,7 @@
 //   npm run setup -- --skip-install     (re-run onboarding only)
 import { existsSync } from "node:fs";
 import path from "node:path";
-import { BACKEND, FRONTEND, findPython, isWindows, runSync } from "./lib/common.mjs";
+import { BACKEND, FRONTEND, findBasePython, findPython, runSync } from "./lib/common.mjs";
 
 function step(msg) {
   console.log(`\n\x1b[1m> ${msg}\x1b[0m`);
@@ -24,7 +24,16 @@ if (!skipInstall) {
   const venv = path.join(BACKEND, ".venv");
   if (!existsSync(venv)) {
     step("Creating Python virtualenv (backend/.venv)");
-    must(runSync(isWindows ? "python" : "python3", ["-m", "venv", venv]), "python -m venv");
+    let base;
+    try {
+      base = findBasePython();
+    } catch (err) {
+      console.error(`
+${err.message}
+See docs/WINDOWS.md.`);
+      process.exit(1);
+    }
+    must(runSync(base.cmd, [...base.pre, "-m", "venv", venv]), "python -m venv");
   }
   const py = findPython();
   step("Installing backend dependencies");

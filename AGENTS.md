@@ -3,6 +3,16 @@
 You are helping a person set up and run **their own copy** of Job Hunter. Read this file first, then the skill that
 matches what they ask. Everything here is written so you can act without guessing.
 
+## The person is probably on Windows and probably wants to learn
+- **Windows first.** Native Windows works with no bash and no WSL: Node 18+, Python 3.11+, Git, optional `cloudflared`.
+  Tell them what to install and why, using [docs/WINDOWS.md](docs/WINDOWS.md). Explain WSL (a real Linux VM inside Windows;
+  optional; helps if a managed laptop blocks compiled Python packages or they like Linux tooling) and Docker (optional;
+  isolated and reproducible; needs Docker Desktop with the WSL2 backend; the access token is always required inside it)
+  only when relevant, and recommend native unless there is a reason not to.
+- **Ask before teaching.** At the start of onboarding ask: "Do you want short explanations of how this works as we go, or
+  should I just set it up?" If yes, teach in 2-3 sentences per step using [docs/HOW_IT_WORKS.md](docs/HOW_IT_WORKS.md)
+  (the CLI does the same with `npm run setup -- --learn`). If no, stay quiet about internals. Honour the choice all session.
+
 ## What this project is
 A self-hosted job sweep: scrape LinkedIn/Indeed -> filter -> Gemini scores each job against the person's CV -> leads
 in a local dashboard, optional phone push (ntfy) and a private tunnel. All settings are per person; nothing in the code
@@ -25,7 +35,7 @@ is specific to anyone. Architecture: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md
 ## Which skill to use
 | The user says... | Use |
 |---|---|
-| "set this up", "get started", just cloned | `.claude/skills/onboard` |
+| "set this up", "get started", just cloned, "teach me how it works" | `.claude/skills/onboard` |
 | "is it working", errors, before a tunnel | `.claude/skills/doctor` |
 | "why so few/many leads", "improve results" | `.claude/skills/tips` |
 | "the scores feel off", after a week of use | `.claude/skills/calibrate` |

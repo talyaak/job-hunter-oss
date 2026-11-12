@@ -19,6 +19,8 @@ Start with `npm run doctor` (or `npm run doctor:full` while the app runs). Every
 | Windows: "DLL load failed ... Application Control policy" | a security policy blocks freshly installed compiled packages (numpy, pandas, SQLAlchemy). Allow-list `backend/.venv` with your IT/security tool, or reinstall versions your policy already trusts |
 | Migrations out of date | `cd backend && python -m alembic upgrade head` |
 
+See also [WINDOWS.md](WINDOWS.md) for Windows prerequisites and when to use WSL or Docker.
+
 ## Docker (optional)
 
 ```bash

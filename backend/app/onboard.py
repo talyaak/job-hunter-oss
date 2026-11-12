@@ -20,6 +20,48 @@ from app.envfile import ensure_access_token, mask, update_env
 from app.preferences import get_preferences, save_preferences
 
 
+# Short "how it works" notes shown before each step when the learner opted in (see docs/HOW_IT_WORKS.md).
+LEARN: dict[str, str] = {
+    "env": (
+        "Two kinds of settings: secrets live in the local .env file (never committed or shown in full); what you want\n"
+        "(titles, location, threshold...) lives in the app as Preferences. The ACCESS_TOKEN created now protects the\n"
+        "app whenever it is reached through a public tunnel, so a leaked URL alone shows nothing."
+    ),
+    "gemini": (
+        "Gemini reads each job together with your CV and rates five things 0-100 (requirements, domain, seniority,\n"
+        "technology, signals). Your key stays in .env; job and CV text are sent to Google only to be scored."
+    ),
+    "cv": (
+        "Your CV is the yardstick. Its text is stored locally and compared with every job. It is also turned into\n"
+        "'embeddings' (numbers that capture meaning) so very different jobs can be skipped cheaply. Text-based PDFs only."
+    ),
+    "preferences": (
+        "Cheap rules run first (blocked title words, location, duplicates) so the AI only reads promising jobs. The\n"
+        "threshold decides what becomes a lead; everything else lands in Rejected with its reason so you can tune.\n"
+        "The final percentage is computed by code from your weights, not by the AI."
+    ),
+    "linkedin": (
+        "Without login LinkedIn only shows short job snippets. A li_at cookie (copied by you from your own browser)\n"
+        "lets the app read full descriptions, which improves scoring. It is capped and spaced out to be polite."
+    ),
+    "ntfy": (
+        "ntfy.sh sends a push to your phone for new leads and for your private tunnel link. The topic name acts like a\n"
+        "password, so it is random and long: anyone who knows it can read your alerts."
+    ),
+    "doctor": (
+        "The doctor checks config, database, keys and (with --probe/--sweep) every endpoint, and prints a fix hint per\n"
+        "problem. Run it whenever something feels off."
+    ),
+}
+
+LEARN_MODE = False
+
+
+def explain(key: str) -> None:
+    if LEARN_MODE and key in LEARN:
+        print("  [how it works] " + LEARN[key].replace("\n", "\n                 "))
+
+
 def ask(prompt: str, default: str = "", secret: bool = False, assume_yes: bool = False) -> str:
     if assume_yes:
         return default
@@ -49,12 +91,14 @@ def step_env() -> None:
     if not ENV_FILE.exists() and example.exists():
         shutil.copy(example, ENV_FILE)
         print(f"Created {ENV_FILE.name} from .env.example")
+    explain("env")
     token = ensure_access_token()
     print(f"Access token ready ({mask(token)}). The tunnel link will include it; never share that link.")
 
 
 def step_gemini(assume_yes: bool, key_arg: str | None) -> None:
     print("\n== Gemini API key ==")
+    explain("gemini")
     print("Create a free key at https://aistudio.google.com/apikey")
     key = key_arg or ask("GEMINI_API_KEY", settings.gemini_api_key, secret=True, assume_yes=assume_yes)
     if not key:
@@ -73,6 +117,7 @@ def step_gemini(assume_yes: bool, key_arg: str | None) -> None:
 
 def step_cv(assume_yes: bool, cv_arg: str | None) -> None:
     print("\n== Your CV ==")
+    explain("cv")
     with SessionLocal() as db:
         existing = db.get(UserProfile, 1)
         default = ""
@@ -107,6 +152,7 @@ def step_cv(assume_yes: bool, cv_arg: str | None) -> None:
 
 def step_preferences(assume_yes: bool, args: argparse.Namespace) -> None:
     print("\n== Search preferences ==")
+    explain("preferences")
     with SessionLocal() as db:
         prefs = get_preferences(db)
         titles = args.titles or ask("Job titles to search (comma separated)", ", ".join(prefs.target_titles), assume_yes=assume_yes)
@@ -130,6 +176,7 @@ def step_preferences(assume_yes: bool, args: argparse.Namespace) -> None:
 
 def step_linkedin(assume_yes: bool, cookie_arg: str | None) -> None:
     print("\n== LinkedIn (optional) ==")
+    explain("linkedin")
     print("Guest scraping works without login. A li_at cookie unlocks full job descriptions (see docs/LINKEDIN.md).")
     print("Heads-up: automated access may violate LinkedIn's terms; keep volumes low and use at your own risk.")
     if not (cookie_arg or ask_yes("Add your li_at cookie now?", False, assume_yes)):
@@ -145,6 +192,7 @@ def step_linkedin(assume_yes: bool, cookie_arg: str | None) -> None:
 
 def step_ntfy(assume_yes: bool) -> None:
     print("\n== Push notifications (optional) ==")
+    explain("ntfy")
     print("ntfy.sh pushes new leads and your private tunnel link to your phone. Install the ntfy app and subscribe to the topic.")
     if settings.ntfy_topic:
         print(f"Topic already set ({mask(settings.ntfy_topic)}).")
@@ -165,7 +213,18 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--country")
     ap.add_argument("--linkedin-cookie")
     ap.add_argument("--skip-doctor", action="store_true")
+    learn = ap.add_mutually_exclusive_group()
+    learn.add_argument("--learn", action="store_true", help="show short 'how it works' notes at each step")
+    learn.add_argument("--no-learn", action="store_true", help="do not ask about or show the notes")
     args = ap.parse_args(argv)
+
+    global LEARN_MODE
+    if args.learn:
+        LEARN_MODE = True
+    elif args.no_learn or args.yes:
+        LEARN_MODE = False
+    else:
+        LEARN_MODE = ask_yes("Would you like short 'how it works' notes at each step? (about 3 lines each)", True)
 
     print("Job Hunter setup\n----------------")
     Base.metadata.create_all(bind=engine)
@@ -178,10 +237,13 @@ def main(argv: list[str] | None = None) -> int:
 
     if not args.skip_doctor:
         print("\n== Health check ==")
+        explain("doctor")
         from app.doctor_cli import main as doctor_main
 
         doctor_main([])
     print("\nDone. Start everything with `npm run dev` (or `npm run dev:tunnel` for phone access).")
+    if LEARN_MODE:
+        print("Want the longer version? Read docs/HOW_IT_WORKS.md, or ask your assistant to walk you through it.")
     return 0
 
 
