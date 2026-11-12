@@ -10,7 +10,7 @@ tells you what to install, and when WSL or Docker is actually worth it.
 | **Node.js 18+** | runs the dev scripts (`npm run setup`, `dev`, `doctor`, tunnel) and the Vue frontend | `winget install OpenJS.NodeJS.LTS` |
 | **Python 3.11+** | runs the backend (FastAPI), the job scraping and the Gemini calls | `winget install Python.Python.3.12` |
 | **Git** | clone the repo | `winget install Git.Git` |
-| **Gemini API key** | the AI scoring; free at https://aistudio.google.com/apikey | (browser) |
+| **Gemini API key** | the AI scoring; free tier to look around, a few dollars of credit to try it properly (see the README Cost section) | https://aistudio.google.com/apikey |
 | *Optional:* **cloudflared** | the private tunnel to open the dashboard from your phone | `winget install Cloudflare.cloudflared` |
 | *Optional:* **ntfy app** (phone) | push alerts for new leads and your private link | Play Store / App Store |
 

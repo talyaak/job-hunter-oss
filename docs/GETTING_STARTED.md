@@ -11,7 +11,8 @@ Want to understand what you are running? [HOW_IT_WORKS.md](HOW_IT_WORKS.md) is a
 short notes at each step (`npm run setup -- --learn`).
 
 - Node 18+ and Python 3.11+ (`node -v`, `python --version`)
-- A free Gemini API key: https://aistudio.google.com/apikey
+- A Gemini API key: https://aistudio.google.com/apikey. The free tier works for a first look (rate limited); a few dollars of
+  prepaid credit is plenty to try it properly. About 4,400 tokens per scored job, see the README's Cost section.
 - Your CV as a **text-based PDF** (not a scan)
 - Optional: `cloudflared` (phone access), the ntfy phone app (alerts), a LinkedIn `li_at` cookie ([guide](LINKEDIN.md))
 

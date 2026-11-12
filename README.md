@@ -1,16 +1,18 @@
 # Job Hunter
 
-A self-hosted job sweep that **you run on your own machine**. It scrapes LinkedIn and Indeed (and optionally Google ATS
-boards), filters the noise, scores every job against *your* CV with Gemini, and shows only the leads worth your time.
-New leads can be pushed to your phone, and a private tunnel lets you open the dashboard anywhere, protected by a token
-only you have.
+Job Hunter collects job postings from LinkedIn and Indeed, scores each one against your CV with Google's Gemini API,
+and shows only the good matches in a web dashboard on your own computer. You set what you are looking for (titles,
+location, words to reject, minimum score) and it re-runs a few times a day. Your CV and settings stay on your machine;
+only job text and CV excerpts are sent to Gemini for scoring.
 
-- **Your data stays with you**: SQLite file, `.env` secrets and CV never leave your machine except the job and CV text
-  sent to Gemini for scoring (see [docs/PRIVACY.md](docs/PRIVACY.md)).
-- **Made for your search**: titles, locations, blocklists, thresholds, weights and schedule are settings, not code.
-- **AI where it helps**: embeddings pre-filter and retrieve your past decisions as calibration examples (RAG), an LLM
-  scores five dimensions, and **the final score is computed in code** from your weights.
-- **Agent skills included** (`.claude/skills/`): `onboard`, `doctor`, `tips`, `calibrate` and `cv-optimizer`.
+You need a Gemini API key. A few dollars of API credit is enough to get it running and see whether it fits your search
+(see [Cost](#cost)).
+
+**Also included:** phone push alerts (ntfy), a token-protected tunnel to open the dashboard from your phone, a Chrome
+extension that fills application forms, and agent skills (`onboard`, `doctor`, `tips`, `calibrate`, `cv-optimizer`) for
+setup, tuning and CV tailoring.
+
+## How it works
 
 ```
 LinkedIn / Indeed / Google ATS
@@ -22,9 +24,28 @@ LinkedIn / Indeed / Google ATS
   Gemini scores 5 dimensions -> weighted score computed in code -> threshold -> lead + ntfy push
 ```
 
+## Cost
+
+The Gemini API is the only paid part, and the system is built to use little of it. Rules and de-duplication run first
+(free), the AI pre-filters start in shadow mode, text sent to the model is truncated, embeddings are cached by content
+hash, and sweeps are capped. Only jobs that survive the cheap steps reach the scoring call.
+
+Measured on a real call (one-page CV, ~3,000-character job description, `gemini-flash-latest`): about **2,500 input
+tokens and ~1,900 output tokens (including the model's reasoning), ~4,400 in total per scored job.** In a small live sweep
+11 postings were scraped and 7 were scored by the model; the rest were dropped by free rules or duplicates.
+
+- **Rule of thumb:** `jobs scored x ~4,400 tokens`. A few hundred scored jobs per week is about a million tokens. Check
+  Google's current price for the model you choose at https://ai.google.dev/gemini-api/docs/pricing and multiply.
+- **Try it first:** the free tier of AI Studio can be enough to try it, but has rate limits; a few dollars of prepaid
+  credit removes that friction and covers a long trial. Free-tier prompts may be used by Google to improve its products,
+  so read Google's terms before sending a CV you consider sensitive ([docs/PRIVACY.md](docs/PRIVACY.md)).
+- **Spend less:** lower `INGESTION_POOL_SIZE` / `INGESTION_POOL_COUNT`, tighten titles and blocked words, raise the
+  threshold only after reading the Rejected tab, or pick a `-lite` model with `GEMINI_MODEL` (`npm run doctor -- --models`
+  lists what your key can use).
+
 ## Quick start
 
-Requirements: Node 18+, Python 3.11+, a free [Gemini API key](https://aistudio.google.com/apikey).
+Requirements: Node 18+, Python 3.11+, a [Gemini API key](https://aistudio.google.com/apikey) (Windows: see [docs/WINDOWS.md](docs/WINDOWS.md)).
 
 ```bash
 git clone <your-fork-or-this-repo> job-hunter

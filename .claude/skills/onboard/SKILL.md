@@ -54,7 +54,8 @@ native unless they hit a policy block or prefer isolation.
 2. **Install and migrate**: `npm run setup` does the virtualenv, `pip install -e backend`, `npm install`, `alembic upgrade
    head`, then the interactive questions. For a non-interactive run pass flags, e.g.
    `npm run setup -- --yes --gemini-key <key> --cv <path.pdf> --titles "Backend Engineer, SRE" --location "Berlin"`.
-3. **Gemini key**: send them to https://aistudio.google.com/apikey. The setup validates it with a 1-token call. A 429
+3. **Gemini key**: send them to https://aistudio.google.com/apikey. Tell them the cost expectation: a few dollars of API credit is
+   enough to try the system; roughly 4,400 tokens per scored job (README, Cost). The free tier works but is rate limited. The setup validates it with a 1-token call. A 429
    means quota; a 400/403 means a wrong or restricted key.
 4. **CV**: a text-based PDF (scanned images are rejected). It is stored locally and its text is sent to Gemini when
    scoring. Mention `docs/PRIVACY.md`.
